@@ -37,6 +37,17 @@ namespace restapi.Models
         }
     }
 
+    public class Delection : Event
+    {
+        [BsonIgnore]
+        public int Deleter { get => Person; set { Person = value; } }
+
+        public override string ToString()
+        {
+            return PublicJsonSerializer.SerializeObjectIndented(this);
+        }
+    }
+
     public class Cancellation : Event
     {
         [BsonIgnore]
