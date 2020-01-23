@@ -146,7 +146,7 @@ namespace restapi.Controllers
             }
         }
 
-                [HttpPost("{id:guid}/lines/{lineid:guid}")]
+        [HttpPost("{id:guid}/lines/{lineid:guid}")]
         [Produces(ContentTypes.TimesheetLine)]
         [ProducesResponseType(typeof(TimecardLine), 200)]
         [ProducesResponseType(404)]
@@ -170,6 +170,43 @@ namespace restapi.Controllers
                     repository.Update(timecard);
                     return Ok(updatedLine);
                 }
+            }
+            return NotFound();
+        }
+
+        [HttpPost("{id:guid}/lines/{lineid:guid}")]
+        [Produces(ContentTypes.TimesheetLine)]
+        [ProducesResponseType(typeof(TimecardLine), 200)]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(InvalidStateError), 409)]
+        [ProducesResponseType(typeof(RemoveLineError), 409)]
+        public IActionResult ReplaceLine(Guid id, [FromBody] DocumentLine documentLine, Guid lineId)
+        {
+            logger.LogInformation($"Looking for timesheet {id} and line {lineId}");
+
+            Timecard timecard = repository.Find(id);
+            if (timecard != null)
+            {
+                if (timecard.Status != TimecardStatus.Draft)
+                {
+                    return StatusCode(409, new InvalidStateError() { });
+                }
+
+                //replace line
+                if(timecard.HasLine(lineId))
+                {
+                    //remove the line
+                    if(timecard.RemoveLine(lineId))
+                    {
+                        repository.Update(timecard);
+                        //add the new line
+                        return AddLine(id, documentLine);
+                    } else{
+                        //unable to remove line
+                        return StatusCode(409, new RemoveLineError() { });
+                    }
+                }
+
             }
             return NotFound();
         }
