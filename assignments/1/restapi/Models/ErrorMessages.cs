@@ -27,4 +27,11 @@ namespace restapi.Models
 
         public string Message { get => "Unable to remove line"; }
     }
+
+    public class NoPermissionError
+    {
+        public int ErrorCode { get => 104; }
+
+        public string Message { get => "No permission for the operation"; }
+    }
 }
