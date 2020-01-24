@@ -251,6 +251,7 @@ namespace restapi.Controllers
         [ProducesResponseType(404)]
         [ProducesResponseType(typeof(InvalidStateError), 409)]
         [ProducesResponseType(typeof(EmptyTimecardError), 409)]
+        [ProducesResponseType(typeof(NoPermissionError), 409)]
         public IActionResult Submit(Guid id, [FromBody] Submittal submittal)
         {
             logger.LogInformation($"Looking for timesheet {id}");
@@ -267,6 +268,12 @@ namespace restapi.Controllers
                 if (timecard.Lines.Count < 1)
                 {
                     return StatusCode(409, new EmptyTimecardError() { });
+                }
+
+                //check if it's the same person to submit the card
+                if(submittal.Submitter != timecard.Employee)
+                {
+                    return StatusCode(409, new NoPermissionError() { });
                 }
 
                 var transition = new Transition(submittal, TimecardStatus.Submitted);
