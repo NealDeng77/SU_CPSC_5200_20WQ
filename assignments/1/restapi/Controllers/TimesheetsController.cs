@@ -68,7 +68,7 @@ namespace restapi.Controllers
             return timecard;
         }
 
-        [HttpDelete("{id:guid/delete}")]
+        [HttpDelete("{id:guid}/delete")]
         [ProducesResponseType(200)]
         [ProducesResponseType(404)]
         [Produces(ContentTypes.Transition)]
@@ -167,7 +167,7 @@ namespace restapi.Controllers
             }
         }
 
-        [HttpPost("{id:guid}/lines/{lineid:guid}")]
+        [HttpPatch("{id:guid}/lines/{lineid:guid}")]
         [Produces(ContentTypes.TimesheetLine)]
         [ProducesResponseType(typeof(TimecardLine), 200)]
         [ProducesResponseType(404)]
