@@ -74,7 +74,7 @@ namespace restapi.Controllers
         [Produces(ContentTypes.Transition)]
         [ProducesResponseType(typeof(Transition), 200)]
         [ProducesResponseType(typeof(InvalidStateError), 409)]
-        [ProducesResponseType(typeof(EmptyTimecardError), 409)]
+        [ProducesResponseType(typeof(NoPermissionError), 409)]
         public IActionResult Delete(Guid id, [FromBody] Delection delection)
         {
             logger.LogInformation($"Looking for timesheet {id}");
@@ -95,6 +95,13 @@ namespace restapi.Controllers
             {
                 return StatusCode(409, new InvalidStateError() { });
             }
+                        
+            //check if it's the same person to delete the card
+            if(delection.Deleter != timecard.Employee)
+            {
+                return StatusCode(409, new NoPermissionError() { });
+            }
+
             var transition = new Transition(delection, TimecardStatus.Deleted);
 
             logger.LogInformation($"Adding delection {transition}");
